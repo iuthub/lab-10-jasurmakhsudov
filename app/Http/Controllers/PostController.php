@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Like;
 use App\Post;
 use App\Tag;
+use Auth;
+use Gate;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -66,6 +68,7 @@ class PostController extends Controller
 
     public function postAdminUpdate(Request $request)
     {
+        
         $this->validate($request, [
             'title' => 'required|min:5',
             'content' => 'required|min:10'
@@ -73,6 +76,9 @@ class PostController extends Controller
         $post = Post::find($request->input('id'));
         $post->title = $request->input('title');
         $post->content = $request->input('content');
+        if (Gate::denies('update-post', $post)) {    
+            return redirect()->back();
+        }
         $post->save();
 //        $post->tags()->detach();
 //        $post->tags()->attach($request->input('tags') === null ? [] : $request->input('tags'));
